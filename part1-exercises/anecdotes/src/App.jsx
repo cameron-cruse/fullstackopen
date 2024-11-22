@@ -25,8 +25,8 @@ const App = () => {
     const copy = [...votes];
     copy[selected] += 1;
     setVotes(copy);
-    setMax(indexOfMax(votes));
-    console.log(votes);
+    setMax(indexOfMax(copy));
+    // console.log(votes);
   };
 
   function indexOfMax(arr) {
