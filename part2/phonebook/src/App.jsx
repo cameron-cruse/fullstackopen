@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
-import axios from "axios";
+import Person from "./components/Person";
+import personService from "./services/persons";
+
 const App = () => {
   const [persons, setPersons] = useState([]);
 
@@ -10,10 +12,14 @@ const App = () => {
 
   useEffect(() => {
     console.log("fetching");
-    axios.get("http://localhost:3001/persons").then((response) => {
-      setPersons(response.data);
+    personService.getAll().then((initialPersons) => {
+      setPersons(initialPersons);
     });
   }, []);
+
+  const destroyPerson = (id) => {
+    console.log(`destroying ${id}`);
+  };
 
   const addName = (event) => {
     event.preventDefault();
@@ -27,7 +33,9 @@ const App = () => {
     if (exists) {
       alert(`${newName} is already added to phonebook`);
     } else {
-      setPersons(persons.concat(personObject));
+      personService.create(personObject).then((returnedPerson) => {
+        setPersons(persons.concat(returnedPerson));
+      });
     }
 
     setNewName("");
@@ -46,7 +54,17 @@ const App = () => {
       />
 
       <h2>Numbers</h2>
-      <Persons persons={persons} />
+      {/* <Persons persons={persons} destroyPerson={() => destroyPerson()} /> */}
+      <>
+        {persons.map((person) => (
+          <Person
+            key={person.name}
+            name={person.name}
+            number={person.number}
+            destroyThisPerson={() => destroyPerson(person.id)}
+          />
+        ))}
+      </>
     </div>
   );
 };

@@ -4,8 +4,13 @@ import Person from "./Person";
 const Persons = ({ persons }) => {
   return (
     <>
-      {persons.map((person) => (
-        <Person key={person.name} name={person.name} number={person.number} />
+      {persons.map((person, destroyPerson) => (
+        <Person
+          key={person.name}
+          name={person.name}
+          number={person.number}
+          destroyPerson={() => destroyPerson(person.id)}
+        />
       ))}
     </>
   );
