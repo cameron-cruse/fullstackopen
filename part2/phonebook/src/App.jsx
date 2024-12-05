@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import PersonForm from "./components/PersonForm";
-import Persons from "./components/Persons";
+// import Persons from "./components/Persons";
 import Person from "./components/Person";
 import personService from "./services/persons";
 
@@ -18,7 +18,12 @@ const App = () => {
   }, []);
 
   const destroyPerson = (id) => {
-    console.log(`destroying ${id}`);
+    const person = persons.find((p) => p.id === id);
+    if (window.confirm(`Are you sure you want to delete ${person.name}`)) {
+      console.log(`destroying ${id}`);
+      personService.destroy(id);
+      setPersons(persons.filter((person) => person.id !== id));
+    }
   };
 
   const addName = (event) => {
@@ -31,7 +36,22 @@ const App = () => {
     const exists = persons.some((person) => person.name === newName);
 
     if (exists) {
-      alert(`${newName} is already added to phonebook`);
+      if (
+        window.confirm(
+          `${newName} is already added to phonebook, replace the old number with a new one?`
+        )
+      ) {
+        const oldPerson = persons.find((p) => p.name === newName);
+        personService
+          .update(oldPerson.id, personObject)
+          .then((returnedPerson) => {
+            setPersons(
+              persons.map((person) =>
+                person.name === returnedPerson.name ? returnedPerson : person
+              )
+            );
+          });
+      }
     } else {
       personService.create(personObject).then((returnedPerson) => {
         setPersons(persons.concat(returnedPerson));
