@@ -2,13 +2,15 @@ import { useEffect, useState } from "react";
 import PersonForm from "./components/PersonForm";
 // import Persons from "./components/Persons";
 import Person from "./components/Person";
+import Notification from "./components/Notification";
 import personService from "./services/persons";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
-
+  const [message, setMessage] = useState(null);
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
+  const [messageType, setMessageType] = useState(true);
 
   useEffect(() => {
     console.log("fetching");
@@ -50,11 +52,22 @@ const App = () => {
                 person.name === returnedPerson.name ? returnedPerson : person
               )
             );
+          })
+          .catch((error) => {
+            setMessageType(false);
+            setMessage(
+              `${oldPerson.name} has already been removed from the server!`
+            );
+            setTimeout(() => setMessage(null), 5000);
+            setPersons(persons.filter((n) => n.id !== oldPerson.id));
           });
       }
     } else {
       personService.create(personObject).then((returnedPerson) => {
         setPersons(persons.concat(returnedPerson));
+        setMessageType(true);
+        setMessage(`Successfully added ${returnedPerson.name} to phonebook!`);
+        setTimeout(() => setMessage(null), 5000);
       });
     }
 
@@ -65,6 +78,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message} messageType={messageType} />
       <PersonForm
         addName={addName}
         newName={newName}
